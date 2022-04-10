@@ -25,7 +25,7 @@ func New(name string, user string, password string, sshKey string) Client {
 }
 
 //function to connect to the server
-func connect(c Client, cmd []string) []string {
+func Connect(c Client, cmd []string) []string {
 	var out []byte
 	var err error
 	var outList []string
