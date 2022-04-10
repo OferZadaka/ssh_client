@@ -1,4 +1,4 @@
-module ssh_client.go
+module github.com/OferZadaka/ssh_client
 
 go 1.17
 
