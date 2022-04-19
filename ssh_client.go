@@ -35,7 +35,8 @@ func Connect(c Client, cmd []string) []string {
 		// Start new ssh connection with private key.
 		auth, err := goph.Key(c.SshKey, "")
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			outList = append(outList, err.Error())
 		}
 		client, err = goph.New(c.User, c.Name, auth)
 		if err != nil {
