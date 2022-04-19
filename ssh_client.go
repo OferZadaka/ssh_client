@@ -45,7 +45,9 @@ func Connect(c Client, cmd []string) []string {
 		// Start new ssh connection with password
 		client, err = goph.New(c.User, c.Name, goph.Password(c.Password))
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			outList = append(outList, "Error: Could not connect to server")
+			return outList
 		}
 	}
 	// Defer closing the network connection.
@@ -57,7 +59,8 @@ func Connect(c Client, cmd []string) []string {
 		outList = append(outList, string(out))
 	}
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		outList = append(outList, "Error")
 	}
 
 	// Get your output as []string].
