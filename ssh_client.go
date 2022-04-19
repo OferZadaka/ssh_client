@@ -37,11 +37,13 @@ func Connect(c Client, cmd []string) []string {
 		if err != nil {
 			log.Println(err)
 			outList = append(outList, err.Error())
+			return outList
 		}
 		client, err = goph.New(c.User, c.Name, auth)
 		if err != nil {
 			log.Println(err)
 			outList = append(outList, err.Error())
+			return outList
 		}
 	} else {
 		// Start new ssh connection with password
@@ -63,6 +65,7 @@ func Connect(c Client, cmd []string) []string {
 	if err != nil {
 		log.Println(err)
 		outList = append(outList, "Error")
+		return outList
 	}
 
 	// Get your output as []string].
