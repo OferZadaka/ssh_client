@@ -39,14 +39,15 @@ func Connect(c Client, cmd []string) []string {
 		}
 		client, err = goph.New(c.User, c.Name, auth)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			outList = append(outList, err.Error())
 		}
 	} else {
 		// Start new ssh connection with password
 		client, err = goph.New(c.User, c.Name, goph.Password(c.Password))
 		if err != nil {
 			log.Println(err)
-			outList = append(outList, "Error: Could not connect to server")
+			outList = append(outList, err.Error())
 			return outList
 		}
 	}
