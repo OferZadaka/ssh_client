@@ -2,8 +2,10 @@ package ssh_client
 
 import (
 	"log"
+	"net"
 
 	"github.com/melbahja/goph"
+	"golang.org/x/crypto/ssh"
 )
 
 type Client struct {
@@ -23,6 +25,34 @@ func New(name string, user string, password string, sshKey string) Client {
 
 	return c
 }
+func VerifyHost(host string, remote net.Addr, key ssh.PublicKey) error {
+
+	//
+	// If you want to connect to new hosts.
+	// here your should check new connections public keys
+	// if the key not trusted you shuld return an error
+	//
+
+	// hostFound: is host in known hosts file.
+	// err: error if key not in known hosts file OR host in known hosts file but key changed!
+	hostFound, err := goph.CheckKnownHost(host, remote, key, "")
+
+	// Host in known hosts but key mismatch!
+	// Maybe because of MAN IN THE MIDDLE ATTACK!
+	if hostFound && err != nil {
+
+		return err
+	}
+
+	// handshake because public key already exists.
+	if hostFound && err == nil {
+
+		return nil
+	}
+
+	// Add the new host to known hosts file.
+	return goph.AddKnownHost(host, remote, key, "~/.ssh/known_hosts")
+}
 
 //function to connect to the server
 func Connect(c Client, cmd []string) []string {
@@ -36,21 +66,21 @@ func Connect(c Client, cmd []string) []string {
 		auth, err := goph.Key(c.SshKey, "")
 		if err != nil {
 			log.Println(err)
-			outList = append(outList, err.Error())
+			outList = append(outList, err.Error()+" "+c.Name)
 			return outList
 		}
-		client, err = goph.New(c.User, c.Name, auth)
+		client, err = goph.NewUnknown(c.User, c.Name, auth)
 		if err != nil {
 			log.Println(err)
-			outList = append(outList, err.Error())
+			outList = append(outList, err.Error()+" "+c.Name)
 			return outList
 		}
 	} else {
 		// Start new ssh connection with password
-		client, err = goph.New(c.User, c.Name, goph.Password(c.Password))
+		client, err = goph.NewUnknown(c.User, c.Name, goph.Password(c.Password))
 		if err != nil {
 			log.Println(err)
-			outList = append(outList, err.Error())
+			outList = append(outList, err.Error()+" "+c.Name)
 			return outList
 		}
 	}
