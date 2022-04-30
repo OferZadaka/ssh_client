@@ -1,8 +1,10 @@
 package ssh_client
 
 import (
+	"context"
 	"log"
 	"net"
+	"time"
 
 	"github.com/melbahja/goph"
 	"golang.org/x/crypto/ssh"
@@ -89,13 +91,17 @@ func Connect(c Client, cmd []string) []string {
 
 	// Execute your command and append to []string
 	for _, line := range cmd {
-		out, err = client.Run(line)
+		ctx := context.Background()
+		context, cancel := context.WithTimeout(ctx, time.Second)
+		defer cancel()
+		// will send SIGINT and return error after 1 second
+		out, err := client.RunContext(context, line)
 		outList = append(outList, string(out))
-	}
-	if err != nil {
-		log.Println(err)
-		outList = append(outList, "Error")
-		return outList
+		if err != nil {
+			log.Println(err)
+			outList = append(outList, "Error")
+			return outList
+		}
 	}
 
 	// Get your output as []string].
